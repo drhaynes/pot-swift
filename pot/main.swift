@@ -71,7 +71,7 @@ func getDimension(imagePath: String, dimension: Dimension, direction: ScaleDirec
     return 0
 }
 
-func resizeImage(imagePath: String, width: Int, height: Int) {
+func resizeImage(imagePath: String, width: Int, height: Int, outputFolder: String) {
     let widthString = String(width)
     let heightString = String(height)
 
@@ -81,15 +81,17 @@ func resizeImage(imagePath: String, width: Int, height: Int) {
     resizeArguments = resizeArguments.replacingOccurrences(of: "{h}", with: heightString)
 
     let fileExtension = (imagePath as NSString).pathExtension
-    let fileName = (imagePath as NSString).deletingPathExtension
-    let outputImagePath = String(format: "%@-%dx%d.%@", fileName, width, height, fileExtension)
+    let fileNamePath = (imagePath as NSString).deletingPathExtension
+    let fileName = (fileNamePath as NSString).lastPathComponent
+    let fileFolder = (imagePath as NSString).deletingLastPathComponent
+    let outputImagePath = String(format: "%@/%@/%@-%dx%d.%@", fileFolder, outputFolder, fileName, width, height, fileExtension)
 
+    print("Writing:", outputImagePath)
+    
     let task = Process()
     task.launchPath = convertPath
     task.arguments = [imagePath, "-resize", resizeArguments, outputImagePath]
     task.launch()
-
-    print("Wrote:", outputImagePath)
 }
 
 func createDir(dirName: String) {
@@ -120,13 +122,13 @@ func listAllFiles(atPath path: String, withExtension fileExtension: String) -> [
 }
 
 let arguments: [String] = CommandLine.arguments.count <= 1 ? [] : Array(CommandLine.arguments.dropFirst())
-
-createDir(dirName: "resized")
+let outputDirectory = "resized"
+createDir(dirName: outputDirectory)
 let files = listAllFiles(atPath: ".", withExtension: ".jpg")
 for filePath in files {
     var direction = ScaleDirection.down
     if (arguments.contains("-up")) { direction = .up }
     let width = getDimension(imagePath: filePath, dimension: .width, direction: direction)
     let height = getDimension(imagePath: filePath, dimension: .height, direction: direction)
-    resizeImage(imagePath: filePath, width: width, height: height)
+    resizeImage(imagePath: filePath, width: width, height: height, outputFolder: outputDirectory)
 }
