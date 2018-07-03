@@ -56,7 +56,6 @@ func getDimension(imagePath: String, dimension: Dimension, direction: ScaleDirec
     task.standardOutput = pipe
     task.launch()
 
-
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     if let output = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
         let trimmedOutput = output.replacingOccurrences(of: "\"", with: "")
@@ -87,7 +86,7 @@ func resizeImage(imagePath: String, width: Int, height: Int, outputFolder: Strin
     let outputImagePath = String(format: "%@/%@/%@-%dx%d.%@", fileFolder, outputFolder, fileName, width, height, fileExtension)
 
     print("Writing:", outputImagePath)
-    
+
     let task = Process()
     task.launchPath = convertPath
     task.arguments = [imagePath, "-resize", resizeArguments, outputImagePath]
